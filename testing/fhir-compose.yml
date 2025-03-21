@@ -1,0 +1,52 @@
+# A test FHIR server.
+
+services:
+  fhir-postgresql:
+    container_name: fhir_postgresql_test
+    image: postgres:14.11-alpine
+#    restart: always
+    ports:
+      - ${FHIR_POSTGRESQL_PORT}:5432
+    environment:
+      POSTGRES_DB: fhir
+      POSTGRES_USER: hapi
+      POSTGRES_PASSWORD: hapi
+      # Temporarily uncomment for one time only for establishing streaming replication, then comment out back
+#      PGDATA: /var/lib/postgresql/data_tmp
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./data/fhir-db:/var/lib/postgresql/data
+      # Temporarily uncomment for one time only for establishing streaming replication, then comment out back
+#      - data/fhir-db_tmp:/var/lib/postgresql/data_tmp
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 15s
+      timeout: 5s
+      retries: 25
+    networks:
+      - rea-network-test
+
+  hapi:
+    container_name: fhir_hapi_test
+    image: "hapiproject/hapi:latest"
+    environment:
+      - hapi.fhir.mdm_enabled=false
+      - spring.datasource.url=jdbc:postgresql://fhir-postgresql:5432/fhir
+      - spring.datasource.username=hapi
+      - spring.datasource.password=hapi
+      - spring.datasource.driverClassName=org.postgresql.Driver
+      - spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
+      - hapi.fhir.bulk_export_enabled=true
+#    restart: unless-stopped
+    ports:
+      - ${HAPI_PORT}:8080
+    depends_on:
+      fhir-postgresql:
+        condition: service_healthy
+    networks:
+      - rea-network-test
+
+networks:
+  rea-network-test:
+    name: rea-network-test

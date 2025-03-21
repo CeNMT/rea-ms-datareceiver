@@ -1,5 +1,0 @@
-apache-beam[gcp]==2.48.0
-datetime
-argparse
-json
-google-cloud-bigquery

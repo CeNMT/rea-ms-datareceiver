@@ -1,0 +1,111 @@
+micronaut:
+  application:
+    name: datareceiver-local
+  security:
+    enabled: false
+#    authentication: bearer
+#    token:
+#      jwt:
+#        signatures:
+#          jwks:
+#            keycloak:
+#              url: 'http://auth.mpg.local:8080/realms/mpg/protocol/openid-connect/certs'
+#    oauth2:
+#      clients:
+#        keycloak:
+#          client-id: fhir-accessor
+#          client-secret: 6aJx6pvqFf4mSUh9cSVk0rfHyOFK5wgP
+#          grant-type: client_credentials
+#          openid:
+#            issuer: 'http://auth.mpg.local:8080/realms/mpg'
+#          token:
+#            url: 'http://auth.mpg.local:8080/realms/mpg/protocol/openid-connect/token'
+  codec:
+    json:
+      additional-types:
+        - 'application/fhir+json;charset=UTF-8'
+  server:
+    contextPath: datareceiver
+    port: 8081
+    cors:
+      enabled: true
+    netty:
+      access-logger:
+        enabled: true
+        logger-name: DATARECEIVER
+        log-format: '"%r" %s %b'
+      log-level: TRACE
+      prefer-native-transport: true
+      event-loops:
+        default:
+          num-threads: 5
+        httpclient:
+          num-threads: 8
+    idle-timeout: 7m
+    executors:
+      scheduled:
+        type: scheduled
+        core-pool-size: 30
+    caches:
+      discovery-client:
+        enabled: false
+  http:
+    client:
+      max-content-length: 2147483647
+      read-timeout: 30s
+      log-level: TRACE
+  router:
+    versioning:
+      enabled: true
+      default-version: 0
+
+endpoints:
+  all:
+    path: management
+    port: 8082
+  health:
+    enabled: true
+    sensitive: false
+    details-visible: ANONYMOUS
+    service-ready-indicator-enabled: true
+    status:
+      http-mapping:
+        UNKNOWN: 204
+  info:
+    enabled: true
+    sensitive: false
+  threaddump:
+    enabled: true
+    sensitive: false
+#  loggers:
+#    enabled: true
+#    sensitive: false
+
+netty:
+  default:
+    allocator:
+      max-order: 3
+
+#eureka:
+#  client:
+#    registration:
+#      enabled: true
+#      retry-count: 5
+#      retry-delay: 5s
+#    defaultZone: http://localhost:8761/eureka
+#  instance:
+#    prefer-ip-address: true
+
+data:
+  hl7:
+    port: 1234
+    alarm_port: 1235
+    thread_pool: 1
+
+fhir:
+  baseurl: http://localhost:8091/fhir
+  context: r4
+
+# LinuxForHealth HL7 to FHIR Converter lib settings
+default:
+  zoneid: +10:00

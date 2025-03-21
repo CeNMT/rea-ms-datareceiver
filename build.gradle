@@ -1,0 +1,102 @@
+plugins {
+    // Gradle plugin for creating fat/uber JARs with support for package relocation.
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.micronaut.application") version "4.4.3"
+}
+
+ext {
+    // https://repo.maven.apache.org/maven2/ca/uhn/hapi/fhir/hapi-fhir-structures-r4/
+    hapiVersion = "6.2.5"
+    lombokVersion = "1.18.34"
+}
+
+version = "0.1"
+group = "com.cnmt"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+//    maven {
+//        url 'https://www.dcm4che.org/maven2'
+//    }
+}
+
+dependencies {
+    // route compile-time validation
+    annotationProcessor("io.micronaut:micronaut-http-validation")
+    implementation("io.micronaut.validation:micronaut-validation")
+    implementation("jakarta.validation:jakarta.validation-api")
+
+    // management & monitoring
+    implementation("io.micronaut:micronaut-management")
+
+    // TCP server on Netty
+//    implementation("io.micronaut:micronaut-http-server")
+//    implementation("io.netty:netty-all")
+    implementation("io.micronaut:micronaut-http-server-netty")
+    // HTTP client
+    implementation("io.micronaut:micronaut-http-client")
+//    implementation "io.micronaut:micronaut-websocket"
+
+    // HL7 message converter todo replace with a custom lib from /lib
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:v1.1.0")
+
+    // json serialization
+    implementation("io.micronaut:micronaut-jackson-databind")
+
+    // discovery client (consul, eureka)
+//    implementation("io.micronaut.discovery:micronaut-discovery-client")
+//    compileOnly("io.micronaut:micronaut-http-client")
+
+//    annotationProcessor("io.micronaut.security:micronaut-security-annotations")
+//    implementation("io.micronaut.security:micronaut-security-jwt")
+//    implementation("io.micronaut.security:micronaut-security-oauth2")
+
+    implementation("io.micronaut.reactor:micronaut-reactor")
+
+    // lombok
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+    compileOnly("org.projectlombok:lombok:$lombokVersion")
+
+    // hapi client
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:$hapiVersion")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:$hapiVersion")
+
+    runtimeOnly("ch.qos.logback:logback-classic")
+
+    // yaml properties
+    runtimeOnly("org.yaml:snakeyaml")
+
+    // testing
+    testAnnotationProcessor "io.micronaut:micronaut-inject-java"
+    testImplementation("io.micronaut:micronaut-http-client")
+    testImplementation("io.micronaut.test:micronaut-test-rest-assured")
+    testImplementation("io.micronaut.test:micronaut-test-junit5")
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.mockito:mockito-core")
+}
+
+application {
+    mainClass.set("com.cnmt.Application")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+// use JUnit 5 platform
+test {
+    useJUnitPlatform()
+}
+
+graalvmNative.toolchainDetection = false
+
+micronaut {
+    runtime("netty")
+    testRuntime("junit5")
+    processing {
+        incremental(true)
+        annotations("com.cnmt.*")
+    }
+}
