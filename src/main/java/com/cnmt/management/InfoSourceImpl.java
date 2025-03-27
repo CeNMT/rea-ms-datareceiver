@@ -1,5 +1,6 @@
 package com.cnmt.management;
 
+import com.cnmt.server.TcpServer;
 import com.cnmt.service.FhirService;
 import io.micronaut.context.env.MapPropertySource;
 import io.micronaut.context.env.PropertySource;
@@ -17,9 +18,12 @@ import java.util.Map;
 @Singleton
 public class InfoSourceImpl implements InfoSource {
     private static final Logger log = LoggerFactory.getLogger(InfoSourceImpl.class);
+
+    private final TcpServer tcpServer;
     private final FhirService fhirService;
 
-    public InfoSourceImpl(FhirService fhirService) {
+    public InfoSourceImpl(TcpServer tcpServer, FhirService fhirService) {
+        this.tcpServer = tcpServer;
         this.fhirService = fhirService;
     }
 
@@ -32,7 +36,7 @@ public class InfoSourceImpl implements InfoSource {
         final List<Map<String, ?>> info = List.of(
                 Map.of("Micronaut version", VersionUtils.getMicronautVersion()),
                 Map.of("FHIR version", fhirService.getVersion()),
-                Map.of("Health Data Receiver", "TODO")); // todo
+                Map.of("Data processing statistics", tcpServer.getStatistics()));
         log.info(info.toString());
         return new MapPropertySource("info", Map.of("Info", info));
     }

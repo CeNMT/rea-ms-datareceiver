@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Check health API
+# Check management API: health
 
 PORT=8082
 
