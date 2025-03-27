@@ -7,6 +7,9 @@ import lombok.Getter;
 @Factory
 @Getter
 public class Hl7Config {
+    @Value("${default.zoneid}")
+    private String zoneId;
+
     @Value("${data.hl7.port}")
     private int hl7Port;
 

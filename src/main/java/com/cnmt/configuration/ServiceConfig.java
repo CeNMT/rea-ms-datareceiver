@@ -11,6 +11,10 @@ public class ServiceConfig {
         this.hl7Config = hl7Config;
     }
 
+    public String getZoneId() {
+        return hl7Config.getZoneId();
+    }
+
     public int getHl7Port() {
         return hl7Config.getHl7Port();
     }

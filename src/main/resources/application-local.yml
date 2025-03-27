@@ -105,7 +105,12 @@ data:
 fhir:
   baseurl: http://localhost:8091/fhir
   context: r4
+  device:
+    name: Health-data-receiver
+    type: software
+    version: 0.1
+    manufacturer: MedPG
 
 # LinuxForHealth HL7 to FHIR Converter lib settings
 default:
-  zoneid: +10:00
+  zoneid: "+10:00"
